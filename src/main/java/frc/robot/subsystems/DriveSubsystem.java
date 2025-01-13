@@ -4,7 +4,7 @@
 
 package frc.robot.subsystems;
 
-import java.lang.management.MemoryType;
+import java.util.function.DoubleSupplier;
 
 import com.revrobotics.CANSparkMax;
 import com.revrobotics.CANSparkLowLevel.MotorType;
@@ -14,15 +14,28 @@ import edu.wpi.first.wpilibj2.command.SubsystemBase;
 import frc.robot.Constants;
 
 public class DriveSubsystem extends SubsystemBase {
+  
+  public final CANSparkMax leftFrontMotor = new CANSparkMax(Constants.OperatorConstants.LEFT_FRONT_MOTOR_ID,MotorType.kBrushed);
+  public final CANSparkMax rightFrontMotor = new CANSparkMax(Constants.OperatorConstants.RIGHT_FRONT_MOTOR_ID,MotorType.kBrushed);
+  public final CANSparkMax leftBackMotor = new CANSparkMax(Constants.OperatorConstants.LEFT_BACK_MOTOR_ID,MotorType.kBrushed);
+  public final CANSparkMax rightBackMotor = new CANSparkMax(Constants.OperatorConstants.RIGHT_BACK_MOTOR_ID,MotorType.kBrushed);
   /** Creates a new DriveSubsystem. */
-  public DriveSubsystem() {}
+  public DriveSubsystem() {
+    leftFrontMotor.restoreFactoryDefaults();
+    rightFrontMotor.restoreFactoryDefaults();
+    
+    leftFrontMotor.follow(leftBackMotor);
+    rightFrontMotor.follow(rightBackMotor);
 
-  public final CANSparkMax leftDrivePrimaryMotor = new CANSparkMax(Constants.OperatorConstants.LEFT_DRIVE_PRIMARY_MOTOR_ID,MotorType.kBrushless);
-  public final CANSparkMax rightDrivePrimaryMotor = new CANSparkMax(Constants.OperatorConstants.RIGHT_DRIVE_PRIMARY_MOTOR_ID,MotorType.kBrushless);
-  public final CANSparkMax leftDriveFollowMotor = new CANSparkMax(Constants.OperatorConstants.RIGHT_DRIVE_PRIMARY_MOTOR_ID,MotorType.kBrushless);
-  public final CANSparkMax rightDriveFollowMotor = new CANSparkMax(Constants.OperatorConstants.RIGHT_DRIVE_FOLLOW_MOTOR_ID,MotorType.kBrushless);
+  }
   
-  
+  public Command driveCommand (DoubleSupplier speed){
+    return runEnd(()->{
+      leftFrontMotor.set(speed.getAsDouble());
+    },() -> {
+      leftFrontMotor.set(0);
+    });
+  }
   
   /**
    * Example command factory method.
